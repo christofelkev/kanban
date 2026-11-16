@@ -22,6 +22,7 @@
   let boards = $state<BoardWithStats[]>([]);
   let isLoading = $state(true);
   let errorMsg = $state<string | null>(null);
+  let hasLoaded = $state(false);
 
   // Modal State
   let isModalOpen = $state(false);
@@ -32,27 +33,32 @@
   let isDeleting = $state(false);
 
   async function loadBoards() {
-    if (!auth.user) return;
+    if (!auth.user) {
+      isLoading = false;
+      return;
+    }
     isLoading = true;
     errorMsg = null;
-    const res = await getBoards();
-    if (res.error) {
-      errorMsg = res.error;
-    } else {
-      boards = res.data ?? [];
+    try {
+      const res = await getBoards();
+      if (res.error) {
+        errorMsg = res.error;
+      } else {
+        boards = res.data ?? [];
+      }
+    } catch (err: unknown) {
+      errorMsg = err instanceof Error ? err.message : 'Terjadi kendala saat memuat board';
+    } finally {
+      isLoading = false;
     }
-    isLoading = false;
   }
 
-  onMount(() => {
-    if (auth.user) {
-      loadBoards();
-    }
-  });
-
   $effect(() => {
-    if (!auth.loading && auth.user && boards.length === 0 && !errorMsg) {
+    if (!auth.loading && auth.user && !hasLoaded) {
+      hasLoaded = true;
       loadBoards();
+    } else if (!auth.loading && !auth.user) {
+      isLoading = false;
     }
   });
 

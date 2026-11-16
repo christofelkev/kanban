@@ -25,6 +25,7 @@
   let board = $state<KanbanBoard | null>(null);
   let isLoading = $state(true);
   let errorMsg = $state<string | null>(null);
+  let hasLoaded = $state(false);
 
   // Filter & Search State
   let selectedLabelId = $state<string | null>(null);
@@ -78,27 +79,32 @@
   });
 
   async function loadBoard() {
-    if (!boardId || !auth.user) return;
+    if (!boardId || !auth.user) {
+      isLoading = false;
+      return;
+    }
     isLoading = true;
     errorMsg = null;
-    const res = await fetchBoardDetails(boardId);
-    if (res.error || !res.board) {
-      errorMsg = res.error || 'Board tidak ditemukan';
-    } else {
-      board = res.board;
+    try {
+      const res = await fetchBoardDetails(boardId);
+      if (res.error || !res.board) {
+        errorMsg = res.error || 'Board tidak ditemukan';
+      } else {
+        board = res.board;
+      }
+    } catch (err: unknown) {
+      errorMsg = err instanceof Error ? err.message : 'Terjadi kendala saat memuat board';
+    } finally {
+      isLoading = false;
     }
-    isLoading = false;
   }
 
-  onMount(() => {
-    if (auth.user) {
-      loadBoard();
-    }
-  });
-
   $effect(() => {
-    if (!auth.loading && auth.user && !board && !errorMsg) {
+    if (!auth.loading && auth.user && !hasLoaded) {
+      hasLoaded = true;
       loadBoard();
+    } else if (!auth.loading && !auth.user) {
+      isLoading = false;
     }
   });
 
