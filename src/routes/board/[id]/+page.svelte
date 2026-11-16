@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
+  import { supabase } from '../../../lib/supabase/client';
   import { auth } from '../../../lib/supabase/auth.svelte';
   import { t } from '../../../lib/i18n/index.svelte';
+  import { toast } from '../../../lib/stores/toast.svelte';
   import BoardHeader from '../../../lib/components/board/BoardHeader.svelte';
   import Column from '../../../lib/components/board/Column.svelte';
   import BoardModal from '../../../lib/components/board/BoardModal.svelte';
@@ -102,6 +104,26 @@
     }
   }
 
+  let isLocalAction = false;
+  let isLocalActionTimeout: ReturnType<typeof setTimeout> | null = null;
+  let cardDragSnapshot: KanbanColumn[] | null = null;
+
+  function markLocalAction() {
+    isLocalAction = true;
+    if (isLocalActionTimeout) clearTimeout(isLocalActionTimeout);
+    isLocalActionTimeout = setTimeout(() => {
+      isLocalAction = false;
+    }, 2000);
+  }
+
+  async function refreshBoardData() {
+    if (!boardId || !auth.user || isLocalAction) return;
+    const res = await fetchBoardDetails(boardId);
+    if (res.board && !isLocalAction) {
+      board = res.board;
+    }
+  }
+
   $effect(() => {
     if (!auth.loading && auth.user && !hasLoaded) {
       hasLoaded = true;
@@ -109,6 +131,33 @@
     } else if (!auth.loading && !auth.user) {
       isLoading = false;
     }
+  });
+
+  // Supabase Realtime Channel
+  $effect(() => {
+    if (!boardId || !auth.user || !hasLoaded) return;
+
+    const channel = supabase
+      .channel(`board-realtime-${boardId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'cards' },
+        () => {
+          if (!isLocalAction) refreshBoardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'lists' },
+        () => {
+          if (!isLocalAction) refreshBoardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   });
 
   async function handleAddColumn(e: SubmitEvent) {
@@ -169,6 +218,14 @@
   function handleColumnCardsChange(columnId: string, items: KanbanCard[]) {
     if (!board) return;
 
+    // Snapshot before mutation if not yet captured
+    if (!cardDragSnapshot) {
+      cardDragSnapshot = board.columns.map((c) => ({
+        ...c,
+        items: [...c.items]
+      }));
+    }
+
     // Optimistic UI update
     const colIndex = board.columns.findIndex((c) => c.id === columnId);
     if (colIndex === -1) return;
@@ -198,7 +255,18 @@
       });
 
       if (cardsToUpdate.length > 0) {
-        await updateCardsPositions(cardsToUpdate);
+        markLocalAction();
+        const { error } = await updateCardsPositions(cardsToUpdate);
+        if (error) {
+          // Optimistic Rollback
+          if (cardDragSnapshot) {
+            board.columns = cardDragSnapshot;
+          }
+          toast.error(t('errorReorderCards'));
+        }
+        cardDragSnapshot = null;
+      } else {
+        cardDragSnapshot = null;
       }
     }, 400);
   }
@@ -210,6 +278,9 @@
 
   async function handleColumnDndFinalize(e: CustomEvent<{ items: KanbanColumn[] }>) {
     if (!board) return;
+    const previousColumns = [...board.columns];
+    markLocalAction();
+
     board.columns = e.detail.items.map((col, index) => ({
       ...col,
       position: index
@@ -222,7 +293,12 @@
       position: index
     }));
 
-    await reorderLists(listsToUpdate);
+    const { error } = await reorderLists(listsToUpdate);
+    if (error) {
+      // Optimistic Rollback
+      board.columns = previousColumns;
+      toast.error(t('errorReorderColumns'));
+    }
   }
 
   function handleUpdateCard(updated: KanbanCard) {

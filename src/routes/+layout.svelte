@@ -7,6 +7,7 @@
   import { goto } from '$app/navigation';
   import { auth } from '../lib/supabase/auth.svelte';
   import { isSupabaseConfigured } from '../lib/supabase/client';
+  import Toast from '../lib/components/ui/Toast.svelte';
   import { Loader2, KeyRound, Database, ExternalLink, FileCode } from '@lucide/svelte';
 
   let { children }: LayoutProps = $props();
@@ -113,3 +114,5 @@ PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...</code></pre>
 {:else}
   {@render children()}
 {/if}
+
+<Toast />

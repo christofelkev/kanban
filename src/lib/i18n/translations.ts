@@ -134,6 +134,9 @@ export const translations = {
     errorLoadingCanvas: 'Failed to load board details.',
     errorSaving: 'An error occurred while saving.',
     errorDeleting: 'Failed to delete board.',
+    errorReorderCards: 'Failed to save card positions. Restored previous order.',
+    errorReorderColumns: 'Failed to save column order. Restored previous order.',
+    changesSaved: 'Changes saved successfully.',
   },
   id: {
     // App & Nav
@@ -270,6 +273,9 @@ export const translations = {
     errorLoadingCanvas: 'Gagal memuat detail board.',
     errorSaving: 'Terjadi kesalahan saat menyimpan.',
     errorDeleting: 'Gagal menghapus board.',
+    errorReorderCards: 'Gagal menyimpan posisi kartu. Mengembalikan posisi semula.',
+    errorReorderColumns: 'Gagal menyimpan urutan kolom. Mengembalikan posisi semula.',
+    changesSaved: 'Perubahan berhasil disimpan.',
   }
 } as const;
 

@@ -64,6 +64,21 @@ export async function deleteCard(id: string): Promise<{ error: string | null }> 
   }
 }
 
+export async function archiveCard(id: string): Promise<{ error: string | null }> {
+  try {
+    const { error } = await supabase
+      .from('cards')
+      .update({ archived_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) throw error;
+    return { error: null };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal mengarsipkan kartu';
+    return { error: message };
+  }
+}
+
 export async function updateCardsPositions(
   cardsToUpdate: { id: string; list_id: string; position: number; title: string }[]
 ): Promise<{ error: string | null }> {

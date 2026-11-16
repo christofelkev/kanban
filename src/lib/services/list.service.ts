@@ -1,28 +1,12 @@
 import { supabase } from '../supabase/client';
-import type { BoardRow, KanbanBoard, KanbanColumn, KanbanCard, LabelRow } from '../types/kanban.types';
-
-interface RawCard {
-  id: string;
-  list_id: string;
-  title: string;
-  description: string | null;
-  due_date: string | null;
-  position: number;
-  created_at: string;
-  updated_at: string;
-  card_labels?: {
-    labels: LabelRow | null;
-  }[];
-}
-
-interface RawList {
-  id: string;
-  board_id: string;
-  title: string;
-  position: number;
-  created_at: string;
-  cards?: RawCard[];
-}
+import type {
+  BoardRow,
+  KanbanBoard,
+  KanbanColumn,
+  KanbanCard,
+  LabelRow,
+  RawListWithCards
+} from '../types/kanban.types';
 
 export async function fetchBoardDetails(
   boardId: string
@@ -40,11 +24,12 @@ export async function fetchBoardDetails(
       .from('lists')
       .select('*, cards(*, card_labels(labels(*)))')
       .eq('board_id', boardId)
-      .order('position', { ascending: true });
+      .order('position', { ascending: true })
+      .returns<RawListWithCards[]>();
 
     if (listsError) throw listsError;
 
-    const rawLists = (listsData as unknown as RawList[]) ?? [];
+    const rawLists = listsData ?? [];
 
     const columns: KanbanColumn[] = rawLists.map((list) => {
       const sortedCards = [...(list.cards ?? [])].sort((a, b) => a.position - b.position);
@@ -78,7 +63,7 @@ export async function fetchBoardDetails(
     });
 
     const board: KanbanBoard = {
-      ...(boardData as unknown as BoardRow),
+      ...boardData,
       columns
     };
 

@@ -33,3 +33,13 @@ export interface KanbanBoard extends BoardRow {
 }
 
 export type DueDateStatus = 'normal' | 'warning' | 'overdue' | null;
+
+export interface RawCardWithLabels extends CardRow {
+  card_labels?: {
+    labels: LabelRow | null;
+  }[];
+}
+
+export interface RawListWithCards extends ListRow {
+  cards?: RawCardWithLabels[];
+}

@@ -182,3 +182,15 @@ ON comments FOR ALL
 TO authenticated
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
+
+-- ==========================================
+-- MIGRATION: SOFT DELETE (ARCHIVED_AT)
+-- ==========================================
+-- To enable soft-deleting cards and lists without losing data:
+-- Run this block in the Supabase SQL Editor:
+ALTER TABLE cards ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ DEFAULT NULL;
+ALTER TABLE lists ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ DEFAULT NULL;
+
+-- Rollback script:
+-- ALTER TABLE cards DROP COLUMN IF EXISTS archived_at;
+-- ALTER TABLE lists DROP COLUMN IF EXISTS archived_at;
