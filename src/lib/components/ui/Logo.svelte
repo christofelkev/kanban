@@ -38,3 +38,4 @@
   <!-- Pulse indicator -->
   <circle cx="24" cy="14" r="1.5" fill="#4F46E5" />
 </svg>
+
