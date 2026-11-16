@@ -1,6 +1,7 @@
 <script lang="ts">
   import { auth } from '../../supabase/auth.svelte';
-  import { Plus, LogOut, Kanban, User } from '@lucide/svelte';
+  import Logo from '../ui/Logo.svelte';
+  import { Plus, LogOut, User } from '@lucide/svelte';
 
   interface Props {
     onOpenNewBoard?: () => void;
@@ -23,11 +24,9 @@
 <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
   <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
     <a href="/" class="flex items-center gap-2.5 font-bold text-slate-900 transition hover:opacity-90">
-      <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm">
-        <Kanban class="h-5 w-5" />
-      </div>
+      <Logo size={36} class="rounded-xl shadow-xs" />
       <div class="flex flex-col">
-        <span class="text-base tracking-tight sm:text-lg">KanbanKu</span>
+        <span class="text-base font-bold tracking-tight text-slate-900 sm:text-lg">KanbanKu</span>
       </div>
     </a>
 

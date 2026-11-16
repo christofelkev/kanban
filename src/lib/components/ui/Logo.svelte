@@ -1,0 +1,40 @@
+<script lang="ts">
+  interface Props {
+    size?: number;
+    class?: string;
+  }
+
+  let { size = 36, class: className = '' }: Props = $props();
+</script>
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 48 48"
+  width={size}
+  height={size}
+  fill="none"
+  class="shrink-0 {className}"
+  aria-hidden="true"
+>
+  <defs>
+    <linearGradient id="kanban-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+    <linearGradient id="card-logo-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#EEF2FF" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Squircle -->
+  <rect width="48" height="48" rx="12" fill="url(#kanban-logo-grad)" />
+
+  <!-- 3 Kanban Columns -->
+  <rect x="10" y="14" width="7" height="20" rx="3.5" fill="#FFFFFF" fill-opacity="0.65" />
+  <rect x="20.5" y="10" width="7" height="28" rx="3.5" fill="url(#card-logo-grad)" />
+  <rect x="31" y="18" width="7" height="16" rx="3.5" fill="#FFFFFF" fill-opacity="0.85" />
+
+  <!-- Pulse indicator -->
+  <circle cx="24" cy="14" r="1.5" fill="#4F46E5" />
+</svg>

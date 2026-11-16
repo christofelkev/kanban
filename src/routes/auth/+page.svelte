@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { auth } from '../../lib/supabase/auth.svelte';
+  import Logo from '../../lib/components/ui/Logo.svelte';
   import { Loader2, Mail, Lock, AlertCircle, CheckCircle2 } from '@lucide/svelte';
 
   type Mode = 'login' | 'register' | 'forgot';
@@ -106,9 +107,7 @@
 <div class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
   <div class="w-full max-w-md rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
     <div class="mb-6 text-center">
-      <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-        <span class="text-2xl font-bold tracking-tight">K</span>
-      </div>
+      <Logo size={52} class="mx-auto mb-3.5 shadow-sm rounded-2xl" />
       <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
         {#if mode === 'login'}
           Masuk ke KanbanKu
