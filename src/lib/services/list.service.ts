@@ -153,17 +153,20 @@ export async function deleteList(id: string): Promise<{ error: string | null }> 
 }
 
 export async function reorderLists(
-  orderedLists: { id: string; position: number }[]
+  orderedLists: { id: string; board_id: string; title: string; position: number }[]
 ): Promise<{ error: string | null }> {
   try {
-    const updates = orderedLists.map((item) =>
-      supabase
-        .from('lists')
-        .update({ position: item.position })
-        .eq('id', item.id)
-    );
+    if (orderedLists.length === 0) return { error: null };
 
-    await Promise.all(updates);
+    const payload = orderedLists.map((item) => ({
+      id: item.id,
+      board_id: item.board_id,
+      title: item.title,
+      position: item.position
+    }));
+
+    const { error } = await supabase.from('lists').upsert(payload, { onConflict: 'id' });
+    if (error) throw error;
     return { error: null };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Gagal mengubah urutan kolom';

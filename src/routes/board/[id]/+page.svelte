@@ -11,7 +11,8 @@
     fetchBoardDetails,
     createList,
     updateList,
-    deleteList
+    deleteList,
+    reorderLists
   } from '../../../lib/services/list.service';
   import {
     createCard,
@@ -19,6 +20,7 @@
   } from '../../../lib/services/card.service';
   import { updateBoard } from '../../../lib/services/board.service';
   import type { KanbanBoard, KanbanColumn, KanbanCard, LabelRow } from '../../../lib/types/kanban.types';
+  import { dndzone } from 'svelte-dnd-action';
   import { Plus, Loader2, AlertCircle, X } from '@lucide/svelte';
 
   const boardId = $derived(page.params.id);
@@ -178,7 +180,7 @@
     if (savePositionsTimeout) clearTimeout(savePositionsTimeout);
     savePositionsTimeout = setTimeout(async () => {
       if (!board) return;
-      const cardsToUpdate: { id: string; list_id: string; position: number }[] = [];
+      const cardsToUpdate: { id: string; list_id: string; position: number; title: string }[] = [];
 
       board.columns.forEach((col) => {
         col.items.forEach((card, index) => {
@@ -188,7 +190,8 @@
             cardsToUpdate.push({
               id: card.id,
               list_id: col.id,
-              position: index
+              position: index,
+              title: card.title
             });
           }
         });
@@ -198,6 +201,28 @@
         await updateCardsPositions(cardsToUpdate);
       }
     }, 400);
+  }
+
+  function handleColumnDndConsider(e: CustomEvent<{ items: KanbanColumn[] }>) {
+    if (!board) return;
+    board.columns = e.detail.items;
+  }
+
+  async function handleColumnDndFinalize(e: CustomEvent<{ items: KanbanColumn[] }>) {
+    if (!board) return;
+    board.columns = e.detail.items.map((col, index) => ({
+      ...col,
+      position: index
+    }));
+
+    const listsToUpdate = board.columns.map((col, index) => ({
+      id: col.id,
+      board_id: board!.id,
+      title: col.title,
+      position: index
+    }));
+
+    await reorderLists(listsToUpdate);
   }
 
   function handleUpdateCard(updated: KanbanCard) {
@@ -268,18 +293,35 @@
   {:else if board}
     <!-- Kanban Columns Horizontal Scroll Canvas -->
     <main class="flex flex-1 items-start gap-4 overflow-x-auto p-4 sm:p-6 snap-x">
-      {#each displayedColumns as column (column.id)}
-        <div class="snap-start">
-          <Column
-            {column}
-            onRenameColumn={handleRenameColumn}
-            onDeleteColumn={handleDeleteColumn}
-            onAddCard={handleAddCard}
-            onCardClick={(card) => (selectedCard = card)}
-            onColumnCardsChange={handleColumnCardsChange}
-          />
-        </div>
-      {/each}
+      <div
+        use:dndzone={{
+          items: board.columns,
+          type: 'column',
+          flipDurationMs: 200,
+          dragDisabled: Boolean(selectedLabelId) || Boolean(searchQuery.trim()),
+          dropTargetStyle: {
+            outline: '2px dashed #6366F1',
+            borderRadius: '1rem',
+            backgroundColor: 'rgba(238, 242, 255, 0.6)'
+          }
+        }}
+        onconsider={handleColumnDndConsider}
+        onfinalize={handleColumnDndFinalize}
+        class="flex items-start gap-4"
+      >
+        {#each (selectedLabelId || searchQuery.trim() ? displayedColumns : board.columns) as column (column.id)}
+          <div class="snap-start">
+            <Column
+              {column}
+              onRenameColumn={handleRenameColumn}
+              onDeleteColumn={handleDeleteColumn}
+              onAddCard={handleAddCard}
+              onCardClick={(card) => (selectedCard = card)}
+              onColumnCardsChange={handleColumnCardsChange}
+            />
+          </div>
+        {/each}
+      </div>
 
       <!-- Add Column Block -->
       <div class="w-[82vw] max-w-[310px] shrink-0 snap-start sm:w-80">

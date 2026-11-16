@@ -3,7 +3,7 @@
   import { t } from '../../i18n/index.svelte';
   import CardItem from './CardItem.svelte';
   import { dndzone } from 'svelte-dnd-action';
-  import { Plus, MoreHorizontal, Edit2, Trash2, X, Loader2 } from '@lucide/svelte';
+  import { Plus, MoreHorizontal, Edit2, Trash2, X, Loader2, GripVertical } from '@lucide/svelte';
 
   interface Props {
     column: KanbanColumn;
@@ -92,8 +92,11 @@
 
 <div class="flex w-[82vw] max-w-[310px] shrink-0 flex-col rounded-2xl border border-slate-200/90 bg-slate-100/80 shadow-xs sm:w-80">
   <!-- Column Header -->
-  <div class="flex items-center justify-between px-3.5 py-3 border-b border-slate-200/60">
-    <div class="flex flex-1 items-center gap-2">
+  <div class="flex items-center justify-between px-3.5 py-3 border-b border-slate-200/60 cursor-grab active:cursor-grabbing">
+    <div class="flex flex-1 items-center gap-2 min-w-0">
+      <div class="flex items-center text-slate-400 hover:text-slate-600 transition" title="Drag to reorder column">
+        <GripVertical class="h-4 w-4 shrink-0" />
+      </div>
       {#if isEditingTitle}
         <input
           type="text"
@@ -112,7 +115,7 @@
         </button>
       {/if}
 
-      <span class="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-200/80 px-1.5 text-[11px] font-bold text-slate-600">
+      <span class="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-200/80 px-1.5 text-[11px] font-bold text-slate-600 shrink-0">
         {column.items.length}
       </span>
     </div>
@@ -155,6 +158,7 @@
   <div
     use:dndzone={{
       items: column.items,
+      type: 'card',
       flipDurationMs: 200,
       dropTargetStyle: {
         outline: '2px dashed #6366F1',

@@ -33,3 +33,4 @@ class I18nManager {
 export const i18n = new I18nManager();
 export const t = (key: TranslationKey) => i18n.t(key);
 export type { Locale, TranslationKey };
+

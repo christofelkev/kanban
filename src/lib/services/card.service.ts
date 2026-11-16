@@ -65,17 +65,20 @@ export async function deleteCard(id: string): Promise<{ error: string | null }> 
 }
 
 export async function updateCardsPositions(
-  cardsToUpdate: { id: string; list_id: string; position: number }[]
+  cardsToUpdate: { id: string; list_id: string; position: number; title: string }[]
 ): Promise<{ error: string | null }> {
   try {
-    const updates = cardsToUpdate.map((c) =>
-      supabase
-        .from('cards')
-        .update({ list_id: c.list_id, position: c.position })
-        .eq('id', c.id)
-    );
+    if (cardsToUpdate.length === 0) return { error: null };
 
-    await Promise.all(updates);
+    const payload = cardsToUpdate.map((c) => ({
+      id: c.id,
+      list_id: c.list_id,
+      position: c.position,
+      title: c.title
+    }));
+
+    const { error } = await supabase.from('cards').upsert(payload, { onConflict: 'id' });
+    if (error) throw error;
     return { error: null };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Gagal memperbarui posisi kartu';
