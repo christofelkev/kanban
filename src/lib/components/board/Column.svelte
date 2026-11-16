@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { KanbanColumn, KanbanCard } from '../../types/kanban.types';
+  import { t } from '../../i18n/index.svelte';
   import CardItem from './CardItem.svelte';
   import { dndzone } from 'svelte-dnd-action';
   import { Plus, MoreHorizontal, Edit2, Trash2, X, Loader2 } from '@lucide/svelte';
@@ -135,7 +136,7 @@
             class="flex w-full items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 text-left"
           >
             <Edit2 class="h-3 w-3 text-slate-400" />
-            <span>Ubah Nama</span>
+            <span>{t('renameColumn')}</span>
           </button>
           <button
             type="button"
@@ -143,7 +144,7 @@
             class="flex w-full items-center gap-2 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 text-left"
           >
             <Trash2 class="h-3 w-3 text-red-500" />
-            <span>Hapus Kolom</span>
+            <span>{t('deleteColumn')}</span>
           </button>
         </div>
       {/if}
@@ -178,7 +179,7 @@
           required
           rows="2"
           bind:value={newCardTitle}
-          placeholder="Tulis judul kartu tugas..."
+          placeholder={t('newCardPlaceholder')}
           class="block w-full resize-none rounded-md border border-slate-300 p-2 text-xs text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none"
         ></textarea>
         <div class="mt-2 flex items-center justify-between">
@@ -190,7 +191,7 @@
             {#if isSubmittingCard}
               <Loader2 class="h-3 w-3 animate-spin" />
             {/if}
-            <span>Tambah</span>
+            <span>{t('add')}</span>
           </button>
           <button
             type="button"
@@ -208,7 +209,7 @@
         class="flex w-full min-h-[36px] items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 transition"
       >
         <Plus class="h-3.5 w-3.5" />
-        <span>Tambah Kartu</span>
+        <span>{t('addCard')}</span>
       </button>
     {/if}
   </div>

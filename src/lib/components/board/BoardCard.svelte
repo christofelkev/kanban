@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { BoardWithStats } from '../../services/board.service';
+  import { t } from '../../i18n/index.svelte';
   import { MoreVertical, Edit2, Trash2, Columns3, CheckSquare } from '@lucide/svelte';
 
   interface Props {
@@ -75,7 +76,7 @@
               class="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 text-left"
             >
               <Edit2 class="h-3.5 w-3.5 text-slate-400" />
-              <span>Ubah</span>
+              <span>{t('editBoard')}</span>
             </button>
             <button
               type="button"
@@ -83,7 +84,7 @@
               class="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 text-left"
             >
               <Trash2 class="h-3.5 w-3.5 text-red-500" />
-              <span>Hapus</span>
+              <span>{t('deleteBoard')}</span>
             </button>
           </div>
         {/if}
@@ -94,11 +95,11 @@
     <a href="/board/{board.id}" class="mt-4 flex items-center gap-4 text-xs font-medium text-slate-500">
       <span class="flex items-center gap-1.5">
         <Columns3 class="h-3.5 w-3.5 text-slate-400" />
-        {columnCount} Kolom
+        {columnCount} {t('columns')}
       </span>
       <span class="flex items-center gap-1.5">
         <CheckSquare class="h-3.5 w-3.5 text-slate-400" />
-        {cardCount} Tugas
+        {cardCount} {t('tasks')}
       </span>
     </a>
   </div>
@@ -107,7 +108,7 @@
     href="/board/{board.id}"
     class="flex items-center justify-between border-t border-slate-100 bg-slate-50/60 px-5 py-3 text-xs font-medium text-indigo-600 hover:bg-indigo-50/50 transition"
   >
-    <span>Buka Board</span>
+    <span>{t('openBoard')}</span>
     <span class="font-bold tracking-tight">&rarr;</span>
   </a>
 </div>

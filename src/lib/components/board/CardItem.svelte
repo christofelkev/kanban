@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { KanbanCard, DueDateStatus } from '../../types/kanban.types';
+  import { i18n } from '../../i18n/index.svelte';
   import { Calendar, Clock, AlertTriangle } from '@lucide/svelte';
   import { format, isPast, isToday, addHours } from 'date-fns';
-  import { id as localeId } from 'date-fns/locale';
+  import { id as localeId, enUS } from 'date-fns/locale';
 
   interface Props {
     card: KanbanCard;
@@ -23,7 +24,9 @@
   const formattedDueDate = $derived.by<string | null>(() => {
     if (!card.due_date) return null;
     try {
-      return format(new Date(card.due_date), 'd MMM', { locale: localeId });
+      return format(new Date(card.due_date), 'd MMM', {
+        locale: i18n.locale === 'id' ? localeId : enUS
+      });
     } catch {
       return null;
     }

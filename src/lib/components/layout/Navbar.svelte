@@ -1,7 +1,9 @@
 <script lang="ts">
   import { auth } from '../../supabase/auth.svelte';
+  import { t } from '../../i18n/index.svelte';
   import Logo from '../ui/Logo.svelte';
-  import { Plus, LogOut, User } from '@lucide/svelte';
+  import LanguageSwitcher from '../ui/LanguageSwitcher.svelte';
+  import { Plus, LogOut } from '@lucide/svelte';
 
   interface Props {
     onOpenNewBoard?: () => void;
@@ -31,6 +33,8 @@
     </a>
 
     <div class="flex items-center gap-2 sm:gap-3">
+      <LanguageSwitcher />
+
       {#if onOpenNewBoard}
         <button
           type="button"
@@ -38,7 +42,7 @@
           class="flex min-h-[40px] items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-indigo-800 sm:text-sm"
         >
           <Plus class="h-4 w-4" />
-          <span>Board Baru</span>
+          <span>{t('newBoard')}</span>
         </button>
       {/if}
 
@@ -55,7 +59,7 @@
             type="button"
             onclick={handleSignOut}
             disabled={isLoggingOut}
-            title="Keluar dari akun"
+            title={t('logout')}
             class="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <LogOut class="h-4 w-4" />

@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { KanbanBoard, LabelRow } from '../../types/kanban.types';
+  import { t } from '../../i18n/index.svelte';
+  import LanguageSwitcher from '../ui/LanguageSwitcher.svelte';
   import {
     ArrowLeft,
     Plus,
@@ -36,8 +38,6 @@
   const totalCards = $derived(
     board.columns.reduce((acc, col) => acc + col.items.length, 0)
   );
-
-  let isSearchOpen = $state(false);
 </script>
 
 <div class="border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
@@ -47,7 +47,7 @@
     <div class="flex items-center gap-3">
       <a
         href="/"
-        title="Kembali ke Dashboard"
+        title={t('backToBoards')}
         class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         <ArrowLeft class="h-4 w-4" />
@@ -67,7 +67,7 @@
         <button
           type="button"
           onclick={onEditBoard}
-          title="Pengaturan Board"
+          title={t('boardSettings')}
           class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <Settings class="h-3.5 w-3.5" />
@@ -75,7 +75,7 @@
       {/if}
     </div>
 
-    <!-- Right: Search, Stats & Actions -->
+    <!-- Right: Search, Language, Stats & Actions -->
     <div class="flex items-center gap-2.5 sm:gap-3">
       <!-- Search Input -->
       <div class="relative flex items-center">
@@ -86,7 +86,7 @@
           type="text"
           value={searchQuery}
           oninput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
-          placeholder="Cari kartu..."
+          placeholder={t('searchCardsPlaceholder')}
           class="min-h-[36px] w-32 rounded-lg border border-slate-200 bg-slate-50 py-1 pl-8 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:w-48 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600/20 sm:w-44 sm:focus:w-56 transition-all"
         />
         {#if searchQuery}
@@ -104,13 +104,15 @@
       <div class="hidden items-center gap-3 text-xs font-medium text-slate-500 md:flex">
         <span class="flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1">
           <Columns3 class="h-3.5 w-3.5 text-slate-400" />
-          {board.columns.length} Kolom
+          {board.columns.length} {t('columns')}
         </span>
         <span class="flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1">
           <CheckSquare class="h-3.5 w-3.5 text-slate-400" />
-          {totalCards} Tugas
+          {totalCards} {t('tasks')}
         </span>
       </div>
+
+      <LanguageSwitcher />
 
       <!-- Add Column Button -->
       <button
@@ -119,7 +121,7 @@
         class="flex min-h-[36px] items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 active:bg-indigo-800 sm:text-sm"
       >
         <Plus class="h-4 w-4" />
-        <span>Tambah Kolom</span>
+        <span>{t('addColumn')}</span>
       </button>
     </div>
   </div>
@@ -130,7 +132,7 @@
       <div class="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto text-xs scrollbar-none">
         <div class="flex items-center gap-1 text-slate-400 shrink-0 font-medium mr-1">
           <Filter class="h-3 w-3" />
-          <span>Filter:</span>
+          <span>{t('filterLabel')}</span>
         </div>
 
         <button
@@ -140,7 +142,7 @@
             ? 'bg-slate-900 text-white'
             : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}"
         >
-          Semua
+          {t('allLabels')}
         </button>
 
         {#each availableLabels as label (label.id)}
@@ -167,7 +169,7 @@
             onclick={() => { onSelectLabel(null); onSearchChange(''); }}
             class="shrink-0 text-xs font-medium text-indigo-600 hover:underline pl-2"
           >
-            Reset Filter
+            {t('resetFilter')}
           </button>
         {/if}
       </div>

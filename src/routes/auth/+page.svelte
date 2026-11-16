@@ -2,7 +2,9 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { auth } from '../../lib/supabase/auth.svelte';
+  import { t } from '../../lib/i18n/index.svelte';
   import Logo from '../../lib/components/ui/Logo.svelte';
+  import LanguageSwitcher from '../../lib/components/ui/LanguageSwitcher.svelte';
   import { Loader2, Mail, Lock, AlertCircle, CheckCircle2 } from '@lucide/svelte';
 
   type Mode = 'login' | 'register' | 'forgot';
@@ -37,22 +39,22 @@
     successMsg = null;
 
     if (!email.trim()) {
-      errorMsg = 'Silakan masukkan alamat email yang valid.';
+      errorMsg = t('enterValidEmail');
       return;
     }
 
     if (mode !== 'forgot' && !password) {
-      errorMsg = 'Silakan masukkan kata sandi Anda.';
+      errorMsg = t('enterPassword');
       return;
     }
 
     if (mode === 'register') {
       if (password.length < 6) {
-        errorMsg = 'Kata sandi minimal harus 6 karakter.';
+        errorMsg = t('passwordMinLength');
         return;
       }
       if (password !== confirmPassword) {
-        errorMsg = 'Konfirmasi kata sandi tidak cocok.';
+        errorMsg = t('passwordsDoNotMatch');
         return;
       }
     }
@@ -72,7 +74,7 @@
         if (error) {
           errorMsg = error.message;
         } else if (data.user && data.session === null) {
-          successMsg = 'Registrasi berhasil! Silakan cek kotak masuk email Anda untuk konfirmasi aktivasi akun.';
+          successMsg = t('authSuccessRegister');
         } else {
           goto('/', { replaceState: true });
         }
@@ -81,11 +83,11 @@
         if (error) {
           errorMsg = error.message;
         } else {
-          successMsg = 'Tautan reset kata sandi telah dikirim ke email Anda.';
+          successMsg = t('resetLinkSent');
         }
       }
     } catch (err: unknown) {
-      errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan sistem. Silakan coba lagi.';
+      errorMsg = err instanceof Error ? err.message : t('authErrorGeneric');
     } finally {
       isSubmitting = false;
     }
@@ -99,31 +101,35 @@
         errorMsg = error.message;
       }
     } catch (err: unknown) {
-      errorMsg = err instanceof Error ? err.message : 'Gagal menghubungi layanan Google.';
+      errorMsg = err instanceof Error ? err.message : t('googleAuthError');
     }
   }
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
   <div class="w-full max-w-md rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+    <div class="mb-4 flex justify-end">
+      <LanguageSwitcher />
+    </div>
+
     <div class="mb-6 text-center">
       <Logo size={52} class="mx-auto mb-3.5 shadow-sm rounded-2xl" />
       <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
         {#if mode === 'login'}
-          Masuk ke KanbanKu
+          {t('loginTitle')}
         {:else if mode === 'register'}
-          Buat Akun KanbanKu
+          {t('registerTitle')}
         {:else}
-          Reset Kata Sandi
+          {t('forgotPasswordTitle')}
         {/if}
       </h1>
       <p class="mt-1 text-sm text-slate-500">
         {#if mode === 'login'}
-          Kelola to-do dan proyek harian Anda dengan mudah.
+          {t('loginSubtitle')}
         {:else if mode === 'register'}
-          Mulai atur alur kerja Anda secara terstruktur.
+          {t('registerSubtitle')}
         {:else}
-          Masukkan email yang terdaftar untuk menerima tautan pemulihan.
+          {t('forgotPasswordSubtitle')}
         {/if}
       </p>
     </div>
@@ -166,7 +172,7 @@
             d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.25 2.65 1.26 6.59l4.02 3.09c.95-2.83 3.6-4.93 6.72-4.93z"
           />
         </svg>
-        Lanjutkan dengan Google
+        {t('googleSignIn')}
       </button>
 
       <div class="relative my-5">
@@ -174,7 +180,7 @@
           <div class="w-full border-t border-slate-200"></div>
         </div>
         <div class="relative flex justify-center text-xs uppercase tracking-wider text-slate-400">
-          <span class="bg-white px-2">atau</span>
+          <span class="bg-white px-2">{t('or')}</span>
         </div>
       </div>
     {/if}
@@ -182,7 +188,7 @@
     <form onsubmit={handleSubmit} class="space-y-4">
       <div>
         <label for="email" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-          Alamat Email
+          {t('emailLabel')}
         </label>
         <div class="relative">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -194,7 +200,7 @@
             required
             autocomplete="email"
             bind:value={email}
-            placeholder="nama@email.com"
+            placeholder={t('emailPlaceholder')}
             class="block w-full min-h-[44px] rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
           />
         </div>
@@ -204,7 +210,7 @@
         <div>
           <div class="mb-1.5 flex items-center justify-between">
             <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Kata Sandi
+              {t('passwordLabel')}
             </label>
             {#if mode === 'login'}
               <button
@@ -212,7 +218,7 @@
                 onclick={() => switchMode('forgot')}
                 class="text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
               >
-                Lupa sandi?
+                {t('forgotPassword')}
               </button>
             {/if}
           </div>
@@ -227,7 +233,7 @@
               minlength="6"
               autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
               bind:value={password}
-              placeholder="Minimal 6 karakter"
+              placeholder={t('passwordPlaceholder')}
               class="block w-full min-h-[44px] rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
             />
           </div>
@@ -237,7 +243,7 @@
       {#if mode === 'register'}
         <div>
           <label for="confirmPassword" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-            Konfirmasi Kata Sandi
+            {t('confirmPasswordLabel')}
           </label>
           <div class="relative">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -250,7 +256,7 @@
               minlength="6"
               autocomplete="new-password"
               bind:value={confirmPassword}
-              placeholder="Ulangi kata sandi"
+              placeholder={t('confirmPasswordPlaceholder')}
               class="block w-full min-h-[44px] rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
             />
           </div>
@@ -265,42 +271,42 @@
         {#if isSubmitting}
           <Loader2 class="h-4 w-4 animate-spin" />
         {:else if mode === 'login'}
-          Masuk
+          {t('signInButton')}
         {:else if mode === 'register'}
-          Daftar Akun
+          {t('signUpButton')}
         {:else}
-          Kirim Tautan Reset
+          {t('sendResetLink')}
         {/if}
       </button>
     </form>
 
     <div class="mt-6 border-t border-slate-100 pt-4 text-center text-sm text-slate-600">
       {#if mode === 'login'}
-        Belum punya akun?
+        {t('dontHaveAccount')}
         <button
           type="button"
           onclick={() => switchMode('register')}
           class="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
         >
-          Daftar sekarang
+          {t('signUpHere')}
         </button>
       {:else if mode === 'register'}
-        Sudah memiliki akun?
+        {t('alreadyHaveAccount')}
         <button
           type="button"
           onclick={() => switchMode('login')}
           class="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
         >
-          Masuk
+          {t('signInHere')}
         </button>
       {:else}
-        Kembali ke
+        {t('backTo')}
         <button
           type="button"
           onclick={() => switchMode('login')}
           class="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
         >
-          Halaman Masuk
+          {t('backToSignIn')}
         </button>
       {/if}
     </div>

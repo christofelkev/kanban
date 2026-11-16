@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { auth } from '../../../lib/supabase/auth.svelte';
+  import { t } from '../../../lib/i18n/index.svelte';
   import BoardHeader from '../../../lib/components/board/BoardHeader.svelte';
   import Column from '../../../lib/components/board/Column.svelte';
   import BoardModal from '../../../lib/components/board/BoardModal.svelte';
@@ -88,12 +89,12 @@
     try {
       const res = await fetchBoardDetails(boardId);
       if (res.error || !res.board) {
-        errorMsg = res.error || 'Board tidak ditemukan';
+        errorMsg = res.error || t('errorLoadingCanvas');
       } else {
         board = res.board;
       }
     } catch (err: unknown) {
-      errorMsg = err instanceof Error ? err.message : 'Terjadi kendala saat memuat board';
+      errorMsg = err instanceof Error ? err.message : t('errorLoadingCanvas');
     } finally {
       isLoading = false;
     }
@@ -141,7 +142,7 @@
     const target = board.columns.find((c) => c.id === columnId);
     if (!target) return;
 
-    const confirmed = confirm(`Hapus kolom "${target.title}" beserta seluruh kartu di dalamnya?`);
+    const confirmed = confirm(`${t('deleteListConfirm')}`);
     if (!confirmed) return;
 
     board.columns = board.columns.filter((c) => c.id !== columnId);
@@ -244,7 +245,7 @@
     <div class="m-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
       <AlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
       <div class="flex-1">
-        <p class="font-semibold">Terjadi kendala</p>
+        <p class="font-semibold">{t('troubleOccurred')}</p>
         <p class="text-xs text-red-700 mt-0.5">{errorMsg}</p>
       </div>
       <button
@@ -252,7 +253,7 @@
         onclick={loadBoard}
         class="rounded-md bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800 hover:bg-red-200"
       >
-        Coba Lagi
+        {t('loadingCanvas')}
       </button>
     </div>
   {/if}
@@ -261,7 +262,7 @@
     <div class="flex flex-1 items-center justify-center">
       <div class="flex flex-col items-center gap-3 text-slate-400">
         <Loader2 class="h-8 w-8 animate-spin text-indigo-600" />
-        <p class="text-xs font-medium uppercase tracking-wider">Memuat kanban board...</p>
+        <p class="text-xs font-medium uppercase tracking-wider">{t('loadingCanvas')}</p>
       </div>
     </div>
   {:else if board}
@@ -288,14 +289,14 @@
             class="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm"
           >
             <label for="new-column-title" class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Nama Kolom Baru
+              {t('addColumn')}
             </label>
             <input
               id="new-column-title"
               type="text"
               required
               bind:value={newColumnTitle}
-              placeholder="Contoh: Testing, Review, Arsip"
+              placeholder={t('newColumnPlaceholder')}
               class="block w-full min-h-[38px] rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
             />
             <div class="mt-3 flex items-center justify-between">
@@ -307,7 +308,7 @@
                 {#if isSubmittingColumn}
                   <Loader2 class="h-3 w-3 animate-spin" />
                 {/if}
-                <span>Tambah Kolom</span>
+                <span>{t('addColumn')}</span>
               </button>
               <button
                 type="button"
@@ -325,7 +326,7 @@
             class="flex w-full min-h-[48px] items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300/80 bg-slate-200/40 p-4 text-xs font-semibold text-slate-600 hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-600 transition"
           >
             <Plus class="h-4 w-4" />
-            <span>Tambah Kolom Baru</span>
+            <span>{t('addColumn')}</span>
           </button>
         {/if}
       </div>

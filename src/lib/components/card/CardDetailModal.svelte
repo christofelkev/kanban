@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { KanbanCard, LabelRow, CommentRow } from '../../types/kanban.types';
+  import { t, i18n } from '../../i18n/index.svelte';
   import {
     updateCard,
     deleteCard,
@@ -26,7 +27,7 @@
     Clock
   } from '@lucide/svelte';
   import { format } from 'date-fns';
-  import { id as localeId } from 'date-fns/locale';
+  import { id as localeId, enUS } from 'date-fns/locale';
 
   interface Props {
     isOpen: boolean;
@@ -193,7 +194,7 @@
 
   async function handleDeleteCardClick() {
     if (!card) return;
-    const confirmed = confirm(`Hapus kartu "${card.title}" secara permanen?`);
+    const confirmed = confirm(t('deleteCardConfirm'));
     if (!confirmed) return;
 
     isDeletingCard = true;
@@ -237,6 +238,7 @@
             type="text"
             bind:value={title}
             onblur={handleTitleBlur}
+            placeholder={t('cardTitlePlaceholder')}
             class="w-full text-base sm:text-lg font-bold text-slate-900 bg-transparent rounded-md px-1.5 py-1 border border-transparent hover:border-slate-300 focus:border-indigo-600 focus:bg-white focus:outline-none transition"
           />
         </div>
@@ -244,7 +246,7 @@
         <button
           type="button"
           onclick={onClose}
-          aria-label="Tutup modal"
+          aria-label={t('close')}
           class="rounded-lg p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 focus:outline-none"
         >
           <X class="h-5 w-5" />
@@ -259,7 +261,7 @@
           <div>
             <div class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
               <Tag class="h-3.5 w-3.5" />
-              <span>Label / Tag</span>
+              <span>{t('labels')}</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-1.5">
@@ -272,7 +274,7 @@
                   <button
                     type="button"
                     onclick={() => handleToggleLabel(label)}
-                    aria-label="Hapus label"
+                    aria-label="Remove label"
                     class="hover:opacity-80"
                   >
                     <X class="h-3 w-3" />
@@ -288,13 +290,13 @@
                   class="flex items-center gap-1 rounded-full border border-dashed border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
                 >
                   <Plus class="h-3 w-3" />
-                  <span>Tambah Label</span>
+                  <span>{t('addLabel')}</span>
                 </button>
 
                 {#if isLabelMenuOpen}
                   <div class="absolute left-0 top-8 z-30 w-56 rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
                     <div class="mb-2 flex items-center justify-between pb-1 border-b border-slate-100">
-                      <span class="text-xs font-bold text-slate-700">Pilih Label</span>
+                      <span class="text-xs font-bold text-slate-700">{t('selectLabel')}</span>
                       <button
                         type="button"
                         onclick={() => { isLabelMenuOpen = false; isCreatingLabel = false; }}
@@ -329,15 +331,15 @@
                           type="text"
                           required
                           bind:value={newLabelName}
-                          placeholder="Nama label..."
+                          placeholder={t('labelNamePlaceholder')}
                           class="w-full rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-900 focus:border-indigo-600 focus:outline-none"
                         />
                         <div class="flex gap-1.5">
                           {#each labelColorPresets as preset}
                             <button
                               type="button"
-                              title="Pilih warna {preset}"
-                              aria-label="Pilih warna {preset}"
+                              title="Color {preset}"
+                              aria-label="Color {preset}"
                               onclick={() => (newLabelColor = preset)}
                               style="background-color: {preset}"
                               class="h-5 w-5 rounded-full {newLabelColor === preset ? 'ring-2 ring-indigo-600 ring-offset-1' : ''}"
@@ -350,13 +352,13 @@
                             onclick={() => (isCreatingLabel = false)}
                             class="rounded px-2 py-1 text-[11px] text-slate-500 hover:bg-slate-100"
                           >
-                            Batal
+                            {t('cancel')}
                           </button>
                           <button
                             type="submit"
                             class="rounded bg-indigo-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-indigo-700"
                           >
-                            Buat
+                            {t('create')}
                           </button>
                         </div>
                       </form>
@@ -367,7 +369,7 @@
                         class="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
                       >
                         <Plus class="h-3 w-3" />
-                        <span>Buat Label Baru</span>
+                        <span>{t('createNewLabel')}</span>
                       </button>
                     {/if}
                   </div>
@@ -380,7 +382,7 @@
           <div>
             <div class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
               <Calendar class="h-3.5 w-3.5" />
-              <span>Tenggat Waktu (Due Date)</span>
+              <span>{t('dueDate')}</span>
             </div>
 
             <div class="flex items-center gap-2">
@@ -394,10 +396,10 @@
                 <button
                   type="button"
                   onclick={handleClearDueDate}
-                  title="Hapus tenggat waktu"
+                  title={t('removeDueDate')}
                   class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-slate-500 hover:bg-slate-100 hover:text-red-600"
                 >
-                  Hapus
+                  {t('removeDueDate')}
                 </button>
               {/if}
             </div>
@@ -409,12 +411,12 @@
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
               <AlignLeft class="h-3.5 w-3.5" />
-              <span>Deskripsi Tugas</span>
+              <span>{t('description')}</span>
             </div>
             {#if isSavingDesc}
               <span class="flex items-center gap-1 text-[11px] text-indigo-600">
                 <Loader2 class="h-3 w-3 animate-spin" />
-                <span>Menyimpan...</span>
+                <span>{t('saving')}</span>
               </span>
             {/if}
           </div>
@@ -423,7 +425,7 @@
             rows="4"
             bind:value={description}
             onblur={handleSaveDescription}
-            placeholder="Tuliskan catatan detail, checklist, atau instruksi tugas di sini..."
+            placeholder={t('descDetailedPlaceholder')}
             class="block w-full resize-y rounded-xl border border-slate-300 p-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
           ></textarea>
         </div>
@@ -432,7 +434,7 @@
         <div>
           <div class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
             <MessageSquare class="h-3.5 w-3.5" />
-            <span>Catatan & Komentar ({comments.length})</span>
+            <span>{t('commentsNotes')} ({comments.length})</span>
           </div>
 
           <!-- Add Comment Box -->
@@ -441,7 +443,7 @@
               required
               rows="2"
               bind:value={newCommentText}
-              placeholder="Tulis catatan atau progres tugas..."
+              placeholder={t('addCommentPlaceholder')}
               class="block w-full resize-none rounded-xl border border-slate-300 p-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
             ></textarea>
             <div class="flex justify-end">
@@ -453,7 +455,7 @@
                 {#if isSubmittingComment}
                   <Loader2 class="h-3 w-3 animate-spin" />
                 {/if}
-                <span>Kirim Catatan</span>
+                <span>{t('addCommentButton')}</span>
               </button>
             </div>
           </form>
@@ -464,7 +466,7 @@
               <Loader2 class="h-5 w-5 animate-spin text-slate-400" />
             </div>
           {:else if comments.length === 0}
-            <p class="text-xs text-slate-400 italic">Belum ada catatan pada kartu ini.</p>
+            <p class="text-xs text-slate-400 italic">{t('noComments')}</p>
           {:else}
             <div class="space-y-3">
               {#each comments as comment (comment.id)}
@@ -472,7 +474,9 @@
                   <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
                     <span class="flex items-center gap-1">
                       <Clock class="h-3 w-3" />
-                      {format(new Date(comment.created_at), 'd MMM yyyy, HH:mm', { locale: localeId })}
+                      {format(new Date(comment.created_at), 'd MMM yyyy, HH:mm', {
+                        locale: i18n.locale === 'id' ? localeId : enUS
+                      })}
                     </span>
                     <button
                       type="button"
@@ -500,7 +504,7 @@
           class="flex min-h-[38px] items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
         >
           <Trash2 class="h-3.5 w-3.5 text-red-600" />
-          <span>Hapus Kartu</span>
+          <span>{t('deleteCard')}</span>
         </button>
 
         <button
@@ -508,7 +512,7 @@
           onclick={onClose}
           class="min-h-[38px] rounded-lg border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
         >
-          Selesai
+          {t('done')}
         </button>
       </div>
     </div>
