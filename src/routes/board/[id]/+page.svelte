@@ -5,6 +5,7 @@
   import BoardHeader from '../../../lib/components/board/BoardHeader.svelte';
   import Column from '../../../lib/components/board/Column.svelte';
   import BoardModal from '../../../lib/components/board/BoardModal.svelte';
+  import CardDetailModal from '../../../lib/components/card/CardDetailModal.svelte';
   import {
     fetchBoardDetails,
     createList,
@@ -152,6 +153,24 @@
     }, 400);
   }
 
+  function handleUpdateCard(updated: KanbanCard) {
+    if (!board) return;
+    board.columns = board.columns.map((col) => ({
+      ...col,
+      items: col.items.map((c) => (c.id === updated.id ? updated : c))
+    }));
+    selectedCard = updated;
+  }
+
+  function handleDeleteCard(cardId: string) {
+    if (!board) return;
+    board.columns = board.columns.map((col) => ({
+      ...col,
+      items: col.items.filter((c) => c.id !== cardId)
+    }));
+    selectedCard = null;
+  }
+
   async function handleEditBoardSubmit(title: string, color: string) {
     if (!board) return;
     const { error } = await updateBoard(board.id, { title, color });
@@ -272,5 +291,17 @@
     initialColor={board.color}
     onClose={() => (isEditBoardModalOpen = false)}
     onSubmit={handleEditBoardSubmit}
+  />
+{/if}
+
+<!-- Modal Detail Kartu -->
+{#if auth.user}
+  <CardDetailModal
+    isOpen={selectedCard !== null}
+    card={selectedCard}
+    userId={auth.user.id}
+    onClose={() => (selectedCard = null)}
+    onUpdateCard={handleUpdateCard}
+    onDeleteCard={handleDeleteCard}
   />
 {/if}
