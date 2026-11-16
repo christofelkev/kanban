@@ -80,6 +80,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
           archived_at?: string | null;
+          cover_color?: string | null;
         };
         Insert: {
           id?: string;
@@ -91,6 +92,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           archived_at?: string | null;
+          cover_color?: string | null;
         };
         Update: {
           id?: string;
@@ -102,6 +104,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           archived_at?: string | null;
+          cover_color?: string | null;
         };
         Relationships: [];
       };
@@ -161,6 +164,33 @@ export interface Database {
           card_id?: string;
           user_id?: string;
           content?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      card_checklists: {
+        Row: {
+          id: string;
+          card_id: string;
+          title: string;
+          is_completed: boolean;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          card_id: string;
+          title: string;
+          is_completed?: boolean;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          card_id?: string;
+          title?: string;
+          is_completed?: boolean;
+          position?: number;
           created_at?: string;
         };
         Relationships: [];

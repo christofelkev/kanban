@@ -22,7 +22,7 @@ export async function fetchBoardDetails(
 
     const { data: listsData, error: listsError } = await supabase
       .from('lists')
-      .select('*, cards(*, card_labels(labels(*)))')
+      .select('*, cards(*, card_labels(labels(*)), card_checklists(*))')
       .eq('board_id', boardId)
       .order('position', { ascending: true })
       .returns<RawListWithCards[]>();
@@ -32,12 +32,15 @@ export async function fetchBoardDetails(
     const rawLists = listsData ?? [];
 
     const columns: KanbanColumn[] = rawLists.map((list) => {
-      const sortedCards = [...(list.cards ?? [])].sort((a, b) => a.position - b.position);
+      const activeCards = (list.cards ?? []).filter((c) => !c.archived_at);
+      const sortedCards = activeCards.sort((a, b) => a.position - b.position);
 
       const items: KanbanCard[] = sortedCards.map((card) => {
         const labels: LabelRow[] = (card.card_labels ?? [])
           .map((cl) => cl.labels)
           .filter((l): l is LabelRow => l !== null);
+
+        const checklists = (card.card_checklists ?? []).sort((a, b) => a.position - b.position);
 
         return {
           id: card.id,
@@ -48,7 +51,10 @@ export async function fetchBoardDetails(
           position: card.position,
           created_at: card.created_at,
           updated_at: card.updated_at,
-          labels
+          archived_at: card.archived_at,
+          cover_color: card.cover_color,
+          labels,
+          checklists
         };
       });
 

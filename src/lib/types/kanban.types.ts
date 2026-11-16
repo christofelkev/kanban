@@ -19,9 +19,14 @@ export type LabelUpdate = Database['public']['Tables']['labels']['Update'];
 export type CommentRow = Database['public']['Tables']['comments']['Row'];
 export type CommentInsert = Database['public']['Tables']['comments']['Insert'];
 
+export type ChecklistRow = Database['public']['Tables']['card_checklists']['Row'];
+export type ChecklistInsert = Database['public']['Tables']['card_checklists']['Insert'];
+export type ChecklistUpdate = Database['public']['Tables']['card_checklists']['Update'];
+
 export interface KanbanCard extends CardRow {
   labels: LabelRow[];
   commentsCount?: number;
+  checklists?: ChecklistRow[];
 }
 
 export interface KanbanColumn extends ListRow {
@@ -38,6 +43,7 @@ export interface RawCardWithLabels extends CardRow {
   card_labels?: {
     labels: LabelRow | null;
   }[];
+  card_checklists?: ChecklistRow[];
 }
 
 export interface RawListWithCards extends ListRow {

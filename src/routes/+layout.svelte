@@ -12,21 +12,34 @@
 
   let { children }: LayoutProps = $props();
 
+  if (typeof window !== 'undefined' && isSupabaseConfigured) {
+    auth.init();
+  }
+
   onMount(() => {
     if (isSupabaseConfigured) {
       auth.init();
     }
   });
 
+  const pathname = $derived(page.url.pathname);
+  const isAuthRoute = $derived(pathname.startsWith('/auth'));
+  const isAuthCallback = $derived(pathname === '/auth/callback');
+
+  const canRenderCurrentRoute = $derived.by(() => {
+    if (!isSupabaseConfigured) return false;
+    if (auth.loading) return false;
+    if (isAuthCallback) return true;
+    if (isAuthRoute) return !auth.user;
+    return !!auth.user;
+  });
+
   $effect(() => {
     if (!isSupabaseConfigured || auth.loading) return;
 
-    const pathname = page.url.pathname;
-    const isAuthRoute = pathname.startsWith('/auth');
-
     if (!auth.user && !isAuthRoute) {
       goto('/auth', { replaceState: true });
-    } else if (auth.user && isAuthRoute && pathname !== '/auth/callback') {
+    } else if (auth.user && isAuthRoute && !isAuthCallback) {
       goto('/', { replaceState: true });
     }
   });
@@ -104,11 +117,13 @@ PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...</code></pre>
       </div>
     </div>
   </div>
-{:else if auth.loading}
+{:else if auth.loading || !canRenderCurrentRoute}
   <div class="flex min-h-screen items-center justify-center bg-slate-50">
     <div class="flex flex-col items-center gap-3 text-slate-500">
       <Loader2 class="h-8 w-8 animate-spin text-indigo-600" />
-      <span class="text-xs font-medium tracking-wide uppercase">Memuat KanbanKu...</span>
+      <span class="text-xs font-medium tracking-wide uppercase">
+        {auth.loading ? 'Memuat KanbanKu...' : 'Mengalihkan...'}
+      </span>
     </div>
   </div>
 {:else}

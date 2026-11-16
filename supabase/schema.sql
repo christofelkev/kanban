@@ -206,3 +206,44 @@ ALTER TABLE lists ADD COLUMN IF NOT EXISTS is_collapsed BOOLEAN DEFAULT FALSE;
 -- ALTER TABLE lists DROP COLUMN IF EXISTS wip_limit;
 -- ALTER TABLE lists DROP COLUMN IF EXISTS color;
 -- ALTER TABLE lists DROP COLUMN IF EXISTS is_collapsed;
+
+-- ==========================================
+-- MIGRATION: CARD ENHANCEMENTS (CHECKLISTS, COVER COLOR)
+-- ==========================================
+ALTER TABLE cards ADD COLUMN IF NOT EXISTS cover_color TEXT DEFAULT NULL;
+
+CREATE TABLE IF NOT EXISTS card_checklists (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  card_id UUID REFERENCES cards(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  is_completed BOOLEAN DEFAULT FALSE,
+  position INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_card_checklists_card_id ON card_checklists(card_id);
+
+ALTER TABLE card_checklists ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage checklists in their boards" ON card_checklists;
+CREATE POLICY "Users can manage checklists in their boards" ON card_checklists
+FOR ALL TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM cards
+    JOIN lists ON lists.id = cards.list_id
+    JOIN boards ON boards.id = lists.board_id
+    WHERE cards.id = card_checklists.card_id AND boards.user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM cards
+    JOIN lists ON lists.id = cards.list_id
+    JOIN boards ON boards.id = lists.board_id
+    WHERE cards.id = card_checklists.card_id AND boards.user_id = auth.uid()
+  )
+);
+
+-- Rollback script:
+-- DROP TABLE IF EXISTS card_checklists;
+-- ALTER TABLE cards DROP COLUMN IF EXISTS cover_color;
