@@ -17,7 +17,7 @@
     updateCardsPositions
   } from '../../../lib/services/card.service';
   import { updateBoard } from '../../../lib/services/board.service';
-  import type { KanbanBoard, KanbanColumn, KanbanCard } from '../../../lib/types/kanban.types';
+  import type { KanbanBoard, KanbanColumn, KanbanCard, LabelRow } from '../../../lib/types/kanban.types';
   import { Plus, Loader2, AlertCircle, X } from '@lucide/svelte';
 
   const boardId = $derived(page.params.id);
@@ -25,6 +25,10 @@
   let board = $state<KanbanBoard | null>(null);
   let isLoading = $state(true);
   let errorMsg = $state<string | null>(null);
+
+  // Filter & Search State
+  let selectedLabelId = $state<string | null>(null);
+  let searchQuery = $state('');
 
   // New Column State
   let isAddingColumn = $state(false);
@@ -36,6 +40,42 @@
 
   // Selected Card for Detail Modal (Task 7)
   let selectedCard = $state<KanbanCard | null>(null);
+
+  const availableLabels = $derived.by<LabelRow[]>(() => {
+    if (!board) return [];
+    const map = new Map<string, LabelRow>();
+    board.columns.forEach((col) => {
+      col.items.forEach((card) => {
+        card.labels?.forEach((label) => {
+          map.set(label.id, label);
+        });
+      });
+    });
+    return Array.from(map.values());
+  });
+
+  const displayedColumns = $derived.by<KanbanColumn[]>(() => {
+    if (!board) return [];
+    if (!selectedLabelId && !searchQuery.trim()) return board.columns;
+
+    const query = searchQuery.trim().toLowerCase();
+    return board.columns.map((col) => {
+      const filteredItems = col.items.filter((card) => {
+        const matchesLabel =
+          !selectedLabelId || card.labels?.some((l) => l.id === selectedLabelId);
+        const matchesSearch =
+          !query ||
+          card.title.toLowerCase().includes(query) ||
+          (card.description && card.description.toLowerCase().includes(query));
+        return matchesLabel && matchesSearch;
+      });
+
+      return {
+        ...col,
+        items: filteredItems
+      };
+    });
+  });
 
   async function loadBoard() {
     if (!boardId || !auth.user) return;
@@ -184,6 +224,11 @@
   {#if board}
     <BoardHeader
       {board}
+      {availableLabels}
+      {selectedLabelId}
+      {searchQuery}
+      onSelectLabel={(id) => (selectedLabelId = id)}
+      onSearchChange={(q) => (searchQuery = q)}
       onAddColumn={() => (isAddingColumn = true)}
       onEditBoard={() => (isEditBoardModalOpen = true)}
     />
@@ -216,7 +261,7 @@
   {:else if board}
     <!-- Kanban Columns Horizontal Scroll Canvas -->
     <main class="flex flex-1 items-start gap-4 overflow-x-auto p-4 sm:p-6 snap-x">
-      {#each board.columns as column (column.id)}
+      {#each displayedColumns as column (column.id)}
         <div class="snap-start">
           <Column
             {column}
