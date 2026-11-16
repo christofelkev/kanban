@@ -34,6 +34,7 @@ export interface Database {
           position?: number;
           created_at?: string;
         };
+        Relationships: [];
       };
       lists: {
         Row: {
@@ -57,6 +58,7 @@ export interface Database {
           position?: number;
           created_at?: string;
         };
+        Relationships: [];
       };
       cards: {
         Row: {
@@ -89,6 +91,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       labels: {
         Row: {
@@ -109,6 +112,7 @@ export interface Database {
           name?: string;
           color?: string;
         };
+        Relationships: [];
       };
       card_labels: {
         Row: {
@@ -123,6 +127,7 @@ export interface Database {
           card_id?: string;
           label_id?: string;
         };
+        Relationships: [];
       };
       comments: {
         Row: {
@@ -146,6 +151,7 @@ export interface Database {
           content?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: {
@@ -155,6 +161,9 @@ export interface Database {
       [_ in never]: never;
     };
     Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
       [_ in never]: never;
     };
   };
