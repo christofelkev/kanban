@@ -106,7 +106,13 @@ export async function createList(
 
 export async function updateList(
   id: string,
-  updates: { title?: string; position?: number }
+  updates: {
+    title?: string;
+    position?: number;
+    wip_limit?: number | null;
+    color?: string | null;
+    is_collapsed?: boolean;
+  }
 ): Promise<{ error: string | null }> {
   try {
     const { error } = await supabase

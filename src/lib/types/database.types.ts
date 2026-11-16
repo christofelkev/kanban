@@ -43,6 +43,9 @@ export interface Database {
           title: string;
           position: number;
           created_at: string;
+          wip_limit?: number | null;
+          color?: string | null;
+          is_collapsed?: boolean | null;
         };
         Insert: {
           id?: string;
@@ -50,6 +53,9 @@ export interface Database {
           title: string;
           position?: number;
           created_at?: string;
+          wip_limit?: number | null;
+          color?: string | null;
+          is_collapsed?: boolean | null;
         };
         Update: {
           id?: string;
@@ -57,6 +63,9 @@ export interface Database {
           title?: string;
           position?: number;
           created_at?: string;
+          wip_limit?: number | null;
+          color?: string | null;
+          is_collapsed?: boolean | null;
         };
         Relationships: [];
       };

@@ -194,3 +194,15 @@ ALTER TABLE lists ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ DEFAULT NULL;
 -- Rollback script:
 -- ALTER TABLE cards DROP COLUMN IF EXISTS archived_at;
 -- ALTER TABLE lists DROP COLUMN IF EXISTS archived_at;
+
+-- ==========================================
+-- MIGRATION: LIST ENHANCEMENTS (WIP LIMIT, COLOR, COLLAPSE)
+-- ==========================================
+ALTER TABLE lists ADD COLUMN IF NOT EXISTS wip_limit INTEGER DEFAULT NULL;
+ALTER TABLE lists ADD COLUMN IF NOT EXISTS color TEXT DEFAULT NULL;
+ALTER TABLE lists ADD COLUMN IF NOT EXISTS is_collapsed BOOLEAN DEFAULT FALSE;
+
+-- Rollback script:
+-- ALTER TABLE lists DROP COLUMN IF EXISTS wip_limit;
+-- ALTER TABLE lists DROP COLUMN IF EXISTS color;
+-- ALTER TABLE lists DROP COLUMN IF EXISTS is_collapsed;

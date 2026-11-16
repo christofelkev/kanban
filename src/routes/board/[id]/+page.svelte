@@ -319,6 +319,50 @@
     selectedCard = null;
   }
 
+  async function handleUpdateColumn(
+    columnId: string,
+    updates: { wip_limit?: number | null; color?: string | null; is_collapsed?: boolean }
+  ) {
+    if (!board) return;
+    markLocalAction();
+    board.columns = board.columns.map((c) =>
+      c.id === columnId ? { ...c, ...updates } : c
+    );
+    const { error } = await updateList(columnId, updates);
+    if (error) {
+      toast.error(error);
+    }
+  }
+
+  function handleSortCards(
+    columnId: string,
+    criterion: 'dueDate' | 'title' | 'newest' | 'oldest'
+  ) {
+    if (!board) return;
+    const colIndex = board.columns.findIndex((c) => c.id === columnId);
+    if (colIndex === -1) return;
+
+    const items = [...board.columns[colIndex].items];
+
+    if (criterion === 'dueDate') {
+      items.sort((a, b) => {
+        if (!a.due_date && !b.due_date) return 0;
+        if (!a.due_date) return 1;
+        if (!b.due_date) return -1;
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+      });
+    } else if (criterion === 'title') {
+      items.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (criterion === 'newest') {
+      items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    } else if (criterion === 'oldest') {
+      items.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    }
+
+    handleColumnCardsChange(columnId, items);
+    toast.success(t('sortedCardsToast'));
+  }
+
   async function handleEditBoardSubmit(title: string, color: string) {
     if (!board) return;
     const { error } = await updateBoard(board.id, { title, color });
@@ -394,6 +438,8 @@
               onAddCard={handleAddCard}
               onCardClick={(card) => (selectedCard = card)}
               onColumnCardsChange={handleColumnCardsChange}
+              onUpdateColumn={handleUpdateColumn}
+              onSortCards={handleSortCards}
             />
           </div>
         {/each}
